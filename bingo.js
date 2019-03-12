@@ -7796,7 +7796,7 @@ var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
 var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
-	_elm_lang$html$Html$text('Elm live working !!!'));
+	_elm_lang$html$Html$text('Elm live working with div just like react!!!'));
 
 var Elm = {};
 Elm['Bingo'] = Elm['Bingo'] || {};
