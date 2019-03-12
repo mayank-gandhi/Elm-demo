@@ -4,4 +4,4 @@ module Bingo exposing (..)
 import Html
 
 main =
-  Html.text "Elm working"
+  Html.text "Elm live working !!!"
