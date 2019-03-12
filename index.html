@@ -6,8 +6,10 @@
     <script src="bingo.js"></script>
   </head>
   <body>
+    <div id="my-elm-app"></div>
     <script>
-      Elm.Bingo.fullscreen();
+      var node = document.getElementById('my-elm-app');
+      var app = Elm.Bingo.embed(node);
     </script>
   </body>
 </html>
