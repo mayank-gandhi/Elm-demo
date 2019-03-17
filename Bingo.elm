@@ -3,17 +3,17 @@ module Bingo exposing (..)
 
 import Html
 
--- main =
---   Html.text (String.repeat 3 (String.toUpper "Elm live working"))
 
-{-
-main =
-  "- Elm live working - " |> String.toUpper |> String.repeat 3 |> Html.text
--}
+-- afunc = \x y -> x + y 3
+-- what do you think above statement will do
 
-main =
-  "Elm live working"
+playerInfo name gameNumber =
+  name ++ " - game #" ++ (toString gameNumber)
+
+playerInfoHtml name gameNumber =
+  playerInfo name gameNumber
     |> String.toUpper
-    |> String.repeat 3
-    |> String.pad 100 '*'
     |> Html.text
+
+main =
+  playerInfoHtml "mayank" 3

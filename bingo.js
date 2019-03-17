@@ -7795,16 +7795,24 @@ var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
-var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
-	_elm_lang$html$Html$text(
-		A3(
-			_elm_lang$core$String$pad,
-			100,
-			_elm_lang$core$Native_Utils.chr('*'),
+var _user$project$Bingo$playerInfo = F2(
+	function (name, gameNumber) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			name,
 			A2(
-				_elm_lang$core$String$repeat,
-				3,
-				_elm_lang$core$String$toUpper('Elm live working')))));
+				_elm_lang$core$Basics_ops['++'],
+				' - game #',
+				_elm_lang$core$Basics$toString(gameNumber)));
+	});
+var _user$project$Bingo$playerInfoHtml = F2(
+	function (name, gameNumber) {
+		return _elm_lang$html$Html$text(
+			_elm_lang$core$String$toUpper(
+				A2(_user$project$Bingo$playerInfo, name, gameNumber)));
+	});
+var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
+	A2(_user$project$Bingo$playerInfoHtml, 'mayank', 3));
 
 var Elm = {};
 Elm['Bingo'] = Elm['Bingo'] || {};
