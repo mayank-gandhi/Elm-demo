@@ -8213,27 +8213,56 @@ var _user$project$Bingo$stylePlayerHtml = F2(
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$Bingo$pageContent = A2(
-	_elm_lang$html$Html$div,
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html_Attributes$class('content'),
-		_1: {ctor: '[]'}
-	},
-	{
-		ctor: '::',
-		_0: _user$project$Bingo$pageHeader('Bingo'),
-		_1: {
+var _user$project$Bingo$pageContent = function (player) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
 			ctor: '::',
-			_0: A2(_user$project$Bingo$stylePlayerHtml, 'mayank', 3),
+			_0: _elm_lang$html$Html_Attributes$class('content'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _user$project$Bingo$pageHeader('Bingo'),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Bingo$pageFooter,
-				_1: {ctor: '[]'}
+				_0: A2(_user$project$Bingo$stylePlayerHtml, player.name, player.gameNumber),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('debug'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(player)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$Bingo$pageFooter,
+						_1: {ctor: '[]'}
+					}
+				}
 			}
-		}
-	});
-var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(_user$project$Bingo$pageContent);
+		});
+};
+var _user$project$Bingo$initialWords = {
+	ctor: '::',
+	_0: {id: 1, word: 'code Elm', points: 100, marked: false},
+	_1: {
+		ctor: '::',
+		_0: {id: 2, word: 'code Java', points: 200, marked: false},
+		_1: {ctor: '[]'}
+	}
+};
+var _user$project$Bingo$initialPlayer = {name: 'max', gameNumber: 9, words: _user$project$Bingo$initialWords};
+var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
+	_user$project$Bingo$pageContent(_user$project$Bingo$initialPlayer));
 
 var Elm = {};
 Elm['Bingo'] = Elm['Bingo'] || {};
