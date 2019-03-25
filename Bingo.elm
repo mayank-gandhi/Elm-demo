@@ -6,16 +6,31 @@ import Html.Attributes exposing (id, class, href)
 
 
 -- MODEL
-initialPlayer =
-  { name = "max"
-  , gameNumber = 9
-  , words = initialWords
+
+type alias Player =
+  { name: String
+  , gameNumber: Int
+  , words: List Word
+  }
+
+type alias Word =
+  { id: Int
+  , word: String
+  , points: Int
+  , marked: Bool
   }
 
 
+initialPlayer: Player
+initialPlayer =
+  Player "max" 9 initialWords
+
+initialWords: List Word
 initialWords =
-  [ {id = 1, word = "code Elm", points = 100, marked = False}
-  , {id = 2, word = "code Java", points = 200, marked = False}
+  [ Word 1 "code Elm" 100 False
+  , Word 2 "code Java" 200 False
+  , Word 3 "code Ruby" 300 False
+  , Word 4 "code Red" 400 False
   ]
 
 -- VIEW
@@ -46,7 +61,7 @@ pageFooter =
       [ text "powered by Elm" ]
     ]
 
--- pageContent : Html.Html msg
+pageContent : Player -> Html.Html msg
 pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"

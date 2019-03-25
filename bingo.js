@@ -8251,16 +8251,32 @@ var _user$project$Bingo$pageContent = function (player) {
 			}
 		});
 };
+var _user$project$Bingo$Player = F3(
+	function (a, b, c) {
+		return {name: a, gameNumber: b, words: c};
+	});
+var _user$project$Bingo$Word = F4(
+	function (a, b, c, d) {
+		return {id: a, word: b, points: c, marked: d};
+	});
 var _user$project$Bingo$initialWords = {
 	ctor: '::',
-	_0: {id: 1, word: 'code Elm', points: 100, marked: false},
+	_0: A4(_user$project$Bingo$Word, 1, 'code Elm', 100, false),
 	_1: {
 		ctor: '::',
-		_0: {id: 2, word: 'code Java', points: 200, marked: false},
-		_1: {ctor: '[]'}
+		_0: A4(_user$project$Bingo$Word, 2, 'code Java', 200, false),
+		_1: {
+			ctor: '::',
+			_0: A4(_user$project$Bingo$Word, 3, 'code Ruby', 300, false),
+			_1: {
+				ctor: '::',
+				_0: A4(_user$project$Bingo$Word, 4, 'code Red', 400, false),
+				_1: {ctor: '[]'}
+			}
+		}
 	}
 };
-var _user$project$Bingo$initialPlayer = {name: 'max', gameNumber: 9, words: _user$project$Bingo$initialWords};
+var _user$project$Bingo$initialPlayer = A3(_user$project$Bingo$Player, 'max', 9, _user$project$Bingo$initialWords);
 var _user$project$Bingo$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
 	_user$project$Bingo$pageContent(_user$project$Bingo$initialPlayer));
 
