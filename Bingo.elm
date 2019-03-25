@@ -1,7 +1,7 @@
 -- exporting functions inside this
 module Bingo exposing (..)
 
-import Html exposing (text, h2, div, h1, a, header, footer, Html)
+import Html exposing (text, h2, div, h1, a, header, footer, Html, ul, li, span)
 import Html.Attributes exposing (id, class, href)
 
 
@@ -61,12 +61,28 @@ pageFooter =
       [ text "powered by Elm" ]
     ]
 
+getWordItem: Word -> Html msg
+getWordItem word =
+  li []
+    [ span [ class "phrase" ] [ text word.word ]
+    , span [ class "points" ] [ text (toString word.points) ]
+    ]
+
+pageWordList: List Word -> Html msg
+pageWordList words =
+  let
+    listOfWords =
+      List.map getWordItem words
+  in
+    ul []
+      listOfWords
+
 pageContent : Player -> Html msg
 pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"
     , stylePlayerHtml player.name player.gameNumber
-    , div [ class "debug" ] [ text (toString player) ]
+    , pageWordList player.words
     , pageFooter
     ]
 

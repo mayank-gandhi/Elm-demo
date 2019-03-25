@@ -8145,6 +8145,50 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
+var _user$project$Bingo$getWordItem = function (word) {
+	return A2(
+		_elm_lang$html$Html$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('phrase'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(word.word),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('points'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(word.points)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Bingo$pageWordList = function (words) {
+	var listOfWords = A2(_elm_lang$core$List$map, _user$project$Bingo$getWordItem, words);
+	return A2(
+		_elm_lang$html$Html$ul,
+		{ctor: '[]'},
+		listOfWords);
+};
 var _user$project$Bingo$pageFooter = A2(
 	_elm_lang$html$Html$footer,
 	{ctor: '[]'},
@@ -8229,19 +8273,7 @@ var _user$project$Bingo$pageContent = function (player) {
 				_0: A2(_user$project$Bingo$stylePlayerHtml, player.name, player.gameNumber),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('debug'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(player)),
-							_1: {ctor: '[]'}
-						}),
+					_0: _user$project$Bingo$pageWordList(player.words),
 					_1: {
 						ctor: '::',
 						_0: _user$project$Bingo$pageFooter,
