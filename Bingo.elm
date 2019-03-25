@@ -1,7 +1,7 @@
 -- exporting functions inside this
 module Bingo exposing (..)
 
-import Html exposing (text, h2, div, h1, a, header, footer)
+import Html exposing (text, h2, div, h1, a, header, footer, Html)
 import Html.Attributes exposing (id, class, href)
 
 
@@ -38,7 +38,7 @@ playerInfo : String -> Int -> String
 playerInfo name gameNumber =
   name ++ " - game #" ++ (toString gameNumber)
 
-stylePlayerHtml : String -> Int -> Html.Html msg
+stylePlayerHtml : String -> Int -> Html msg
 stylePlayerHtml name gameNumber =
   let
     playerInfoHtml =
@@ -49,19 +49,19 @@ stylePlayerHtml name gameNumber =
     h2 [ id "info", class "classy" ]
       [ playerInfoHtml ]
 
-pageHeader : String -> Html.Html msg
+pageHeader : String -> Html msg
 pageHeader title =
   header []
     [ h1 [] [ text title ] ]
 
-pageFooter : Html.Html msg
+pageFooter : Html msg
 pageFooter =
   footer []
     [ a [ href "https://elm-lang.org" ]
       [ text "powered by Elm" ]
     ]
 
-pageContent : Player -> Html.Html msg
+pageContent : Player -> Html msg
 pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"
@@ -70,6 +70,6 @@ pageContent player =
     , pageFooter
     ]
 
-main : Html.Html msg
+main : Html msg
 main =
   pageContent initialPlayer
