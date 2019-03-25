@@ -70,12 +70,9 @@ getWordItem word =
 
 pageWordList: List Word -> Html msg
 pageWordList words =
-  let
-    listOfWords =
-      List.map getWordItem words
-  in
-    ul []
-      listOfWords
+  words
+    |> List.map getWordItem
+    |> ul []
 
 pageContent : Player -> Html msg
 pageContent player =

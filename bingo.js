@@ -8183,11 +8183,10 @@ var _user$project$Bingo$getWordItem = function (word) {
 		});
 };
 var _user$project$Bingo$pageWordList = function (words) {
-	var listOfWords = A2(_elm_lang$core$List$map, _user$project$Bingo$getWordItem, words);
 	return A2(
 		_elm_lang$html$Html$ul,
 		{ctor: '[]'},
-		listOfWords);
+		A2(_elm_lang$core$List$map, _user$project$Bingo$getWordItem, words));
 };
 var _user$project$Bingo$pageFooter = A2(
 	_elm_lang$html$Html$footer,
