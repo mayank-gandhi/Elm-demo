@@ -1,11 +1,13 @@
 -- exporting functions inside this
 module Bingo exposing (..)
 
-import Html exposing (text, h2, div, h1, a, header, footer, Html, ul, li, span)
-import Html.Attributes exposing (id, class, href)
+import Html exposing (text, h2, div, h1, a, header, footer, Html, ul, li, span, button)
+import Html.Attributes exposing (id, class, href, classList)
+import Html.Events exposing (onClick)
 
 
 -- MODEL
+
 
 type alias Player =
   { name: String
@@ -33,7 +35,32 @@ initialWords =
   , Word 4 "code Red" 400 False
   ]
 
+
+-- UPDATE
+
+
+type Msg = NewGame | Mark Int
+
+
+update : Msg -> Player -> Player
+update msg player =
+  case msg of
+    NewGame ->
+      { player | gameNumber = player.gameNumber + 1,
+        words = initialWords }
+    Mark id ->
+      let
+        markEntry e =
+          if e.id == id then
+            { e | marked = (not e.marked) }
+          else
+            e
+      in
+        { player | words = List.map markEntry player.words }
+
 -- VIEW
+
+
 playerInfo : String -> Int -> String
 playerInfo name gameNumber =
   name ++ " - game #" ++ (toString gameNumber)
@@ -61,28 +88,43 @@ pageFooter =
       [ text "powered by Elm" ]
     ]
 
-getWordItem: Word -> Html msg
+getWordItem: Word -> Html Msg
 getWordItem word =
-  li []
+  li [ classList [ ("marked", word.marked) ], onClick (Mark word.id) ]
     [ span [ class "phrase" ] [ text word.word ]
     , span [ class "points" ] [ text (toString word.points) ]
     ]
 
-pageWordList: List Word -> Html msg
+pageWordList: List Word -> Html Msg
 pageWordList words =
   words
     |> List.map getWordItem
     |> ul []
 
-pageContent : Player -> Html msg
+pageContent : Player -> Html Msg
 pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"
     , stylePlayerHtml player.name player.gameNumber
     , pageWordList player.words
+    , div [ class "button-group" ]
+          [ button [ onClick NewGame ] [text "New Game"] ]
+    , div [ class "debug" ] [text (toString player)]
     , pageFooter
     ]
 
-main : Html msg
+
+-- main : Html Msg
+-- main =
+--   update NewGame initialPlayer
+--     |> pageContent
+
+
+main : Program Never Player Msg
 main =
-  pageContent initialPlayer
+  Html.beginnerProgram
+    { model = initialPlayer
+    , view = pageContent
+    , update = update
+    }
+
