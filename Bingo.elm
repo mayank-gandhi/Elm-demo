@@ -101,12 +101,32 @@ pageWordList words =
     |> List.map getWordItem
     |> ul []
 
+
+sumMarkedWords : List Word -> Int
+sumMarkedWords words =
+  words
+    |> List.filter .marked
+    -- |> List.map .points
+    -- |> List.sum
+    |> List.foldl (\w sum -> sum + w.points) 0
+
+
+viewScore : Int -> Html Msg
+viewScore sum =
+  div
+    [ class "score" ]
+    [ span [ class "label" ] [ text "Score" ]
+    , span [ class "value" ] [ text (toString sum) ]
+    ]
+
+
 pageContent : Player -> Html Msg
 pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"
     , stylePlayerHtml player.name player.gameNumber
     , pageWordList player.words
+    , viewScore (sumMarkedWords player.words)
     , div [ class "button-group" ]
           [ button [ onClick NewGame ] [text "New Game"] ]
     , div [ class "debug" ] [text (toString player)]
