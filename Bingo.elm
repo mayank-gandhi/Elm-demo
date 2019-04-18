@@ -4,6 +4,7 @@ module Bingo exposing (..)
 import Html exposing (text, h2, div, h1, a, header, footer, Html, ul, li, span, button)
 import Html.Attributes exposing (id, class, href, classList)
 import Html.Events exposing (onClick)
+import Random
 
 
 -- MODEL
@@ -39,15 +40,16 @@ initialWords =
 -- UPDATE
 
 
-type Msg = NewGame | Mark Int
+type Msg = NewGame | Mark Int | NewRandom Int
 
 
-update : Msg -> Player -> Player
+update : Msg -> Player -> ( Player, Cmd Msg )
 update msg player =
   case msg of
+    NewRandom randomNumber ->
+      ( { player | gameNumber = randomNumber }, Cmd.none )
     NewGame ->
-      { player | gameNumber = player.gameNumber + 1,
-        words = initialWords }
+      ( { player | words = initialWords }, generateRandomNumber )
     Mark id ->
       let
         markEntry e =
@@ -56,7 +58,16 @@ update msg player =
           else
             e
       in
-        { player | words = List.map markEntry player.words }
+        ( { player | words = List.map markEntry player.words }, Cmd.none )
+
+
+-- COMMANDS
+
+
+generateRandomNumber : Cmd Msg
+generateRandomNumber =
+  Random.generate NewRandom (Random.int 1 100)
+
 
 -- VIEW
 
@@ -142,9 +153,10 @@ pageContent player =
 
 main : Program Never Player Msg
 main =
-  Html.beginnerProgram
-    { model = initialPlayer
+  Html.program
+    { init = ( initialPlayer, generateRandomNumber )
     , view = pageContent
     , update = update
+    , subscriptions = (\_ -> Sub.none)
     }
 
