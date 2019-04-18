@@ -47,9 +47,9 @@ update : Msg -> Player -> ( Player, Cmd Msg )
 update msg player =
   case msg of
     NewRandom randomNumber ->
-      ( { player | gameNumber = randomNumber }, Cmd.none )
+      { player | gameNumber = randomNumber } ! []
     NewGame ->
-      ( { player | words = initialWords }, generateRandomNumber )
+      { player | words = initialWords } ! [generateRandomNumber]
     Mark id ->
       let
         markEntry e =
@@ -58,7 +58,7 @@ update msg player =
           else
             e
       in
-        ( { player | words = List.map markEntry player.words }, Cmd.none )
+        { player | words = List.map markEntry player.words } ! []
 
 
 -- COMMANDS
@@ -157,6 +157,6 @@ main =
     { init = ( initialPlayer, generateRandomNumber )
     , view = pageContent
     , update = update
-    , subscriptions = (\_ -> Sub.none)
+    , subscriptions = always Sub.none
     }
 
