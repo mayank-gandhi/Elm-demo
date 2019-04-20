@@ -5,6 +5,7 @@ import Html exposing (text, h2, div, h1, a, header, footer, Html, ul, li, span, 
 import Html.Attributes exposing (id, class, href, classList)
 import Html.Events exposing (onClick)
 import Random
+import Http
 
 
 -- MODEL
@@ -26,7 +27,7 @@ type alias Word =
 
 initialPlayer: Player
 initialPlayer =
-  Player "max" 9 initialWords
+  Player "max" 9 []
 
 initialWords: List Word
 initialWords =
@@ -40,7 +41,7 @@ initialWords =
 -- UPDATE
 
 
-type Msg = NewGame | Mark Int | NewRandom Int
+type Msg = NewGame | Mark Int | NewRandom Int | NewWords (Result Http.Error String)
 
 
 update : Msg -> Player -> ( Player, Cmd Msg )
@@ -49,7 +50,19 @@ update msg player =
     NewRandom randomNumber ->
       { player | gameNumber = randomNumber } ! []
     NewGame ->
-      { player | words = initialWords } ! [generateRandomNumber]
+      player ! [getWords, generateRandomNumber]
+    NewWords result ->
+      case result of
+        Ok jsonString ->
+          let
+            _ = Debug.log "done!!!" jsonString
+          in
+            player ! []
+        Err error ->
+          let
+            _ = Debug.log "Oops!!!" error
+          in
+            player ! []
     Mark id ->
       let
         markEntry e =
@@ -68,6 +81,16 @@ generateRandomNumber : Cmd Msg
 generateRandomNumber =
   Random.generate NewRandom (Random.int 1 100)
 
+
+wordsUrl : String
+wordsUrl =
+    "http://localhost:3000/random-entries"
+
+getWords : Cmd Msg
+getWords =
+  wordsUrl
+  |> Http.getString
+  |> Http.send NewWords
 
 -- VIEW
 
@@ -154,7 +177,7 @@ pageContent player =
 main : Program Never Player Msg
 main =
   Html.program
-    { init = ( initialPlayer, generateRandomNumber )
+    { init = initialPlayer ! [ getWords, generateRandomNumber ]
     , view = pageContent
     , update = update
     , subscriptions = always Sub.none
