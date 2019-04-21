@@ -9537,15 +9537,16 @@ var _user$project$Bingo$stylePlayerHtml = F2(
 			});
 	});
 var _user$project$Bingo$wordsUrl = 'http://localhost:3000/random-entries';
-var _user$project$Bingo$Player = F3(
-	function (a, b, c) {
-		return {name: a, gameNumber: b, words: c};
+var _user$project$Bingo$Player = F4(
+	function (a, b, c, d) {
+		return {name: a, gameNumber: b, words: c, alertMessage: d};
 	});
-var _user$project$Bingo$initialPlayer = A3(
+var _user$project$Bingo$initialPlayer = A4(
 	_user$project$Bingo$Player,
 	'max',
 	9,
-	{ctor: '[]'});
+	{ctor: '[]'},
+	_elm_lang$core$Maybe$Nothing);
 var _user$project$Bingo$Word = F4(
 	function (a, b, c, d) {
 		return {id: a, phrase: b, points: c, marked: d};
@@ -9575,6 +9576,45 @@ var _user$project$Bingo$wordDecoder = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
 	_elm_lang$core$Json_Decode$succeed(false));
 var _user$project$Bingo$wordListDecoder = _elm_lang$core$Json_Decode$list(_user$project$Bingo$wordDecoder);
+var _user$project$Bingo$CloseAlert = {ctor: 'CloseAlert'};
+var _user$project$Bingo$viewAlertMessage = function (alertMessage) {
+	var _p0 = alertMessage;
+	if (_p0.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('alert'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('close'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$CloseAlert),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('x'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p0._0),
+					_1: {ctor: '[]'}
+				}
+			});
+	} else {
+		return _elm_lang$html$Html$text('');
+	}
+};
 var _user$project$Bingo$NewWords = function (a) {
 	return {ctor: 'NewWords', _0: a};
 };
@@ -9591,14 +9631,14 @@ var _user$project$Bingo$generateRandomNumber = A2(
 	A2(_elm_lang$core$Random$int, 1, 100));
 var _user$project$Bingo$update = F2(
 	function (msg, player) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'NewRandom':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						player,
-						{gameNumber: _p0._0}),
+						{gameNumber: _p1._0}),
 					{ctor: '[]'});
 			case 'NewGame':
 				return A2(
@@ -9614,24 +9654,47 @@ var _user$project$Bingo$update = F2(
 						}
 					});
 			case 'NewWords':
-				var _p1 = _p0._0;
-				if (_p1.ctor === 'Ok') {
+				var _p2 = _p1._0;
+				if (_p2.ctor === 'Ok') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							player,
-							{words: _p1._0}),
+							{words: _p2._0}),
 						{ctor: '[]'});
 				} else {
-					var _p2 = A2(_elm_lang$core$Debug$log, 'Oops!!!', _p1._0);
+					var errorMessage = function () {
+						var _p3 = _p2._0;
+						switch (_p3.ctor) {
+							case 'NetworkError':
+								return 'Please check server is running???';
+							case 'BadStatus':
+								return _elm_lang$core$Basics$toString(_p3._0.status);
+							case 'BadPayload':
+								return A2(_elm_lang$core$Basics_ops['++'], 'Decoding Failed: ', _p3._0);
+							default:
+								return 'Something went wrong!!!';
+						}
+					}();
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						player,
+						_elm_lang$core$Native_Utils.update(
+							player,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(errorMessage)
+							}),
 						{ctor: '[]'});
 				}
+			case 'CloseAlert':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						player,
+						{alertMessage: _elm_lang$core$Maybe$Nothing}),
+					{ctor: '[]'});
 			default:
 				var markEntry = function (e) {
-					return _elm_lang$core$Native_Utils.eq(e.id, _p0._0) ? _elm_lang$core$Native_Utils.update(
+					return _elm_lang$core$Native_Utils.eq(e.id, _p1._0) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{marked: !e.marked}) : e;
 				};
@@ -9722,55 +9785,59 @@ var _user$project$Bingo$pageContent = function (player) {
 				_0: A2(_user$project$Bingo$stylePlayerHtml, player.name, player.gameNumber),
 				_1: {
 					ctor: '::',
-					_0: _user$project$Bingo$pageWordList(player.words),
+					_0: _user$project$Bingo$viewAlertMessage(player.alertMessage),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Bingo$viewScore(
-							_user$project$Bingo$sumMarkedWords(player.words)),
+						_0: _user$project$Bingo$pageWordList(player.words),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('button-group'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$button,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$NewGame),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('New Game'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
+							_0: _user$project$Bingo$viewScore(
+								_user$project$Bingo$sumMarkedWords(player.words)),
 							_1: {
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$div,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('debug'),
+										_0: _elm_lang$html$Html_Attributes$class('button-group'),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											_elm_lang$core$Basics$toString(player)),
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$NewGame),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('New Game'),
+												_1: {ctor: '[]'}
+											}),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
 									ctor: '::',
-									_0: _user$project$Bingo$pageFooter,
-									_1: {ctor: '[]'}
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('debug'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												_elm_lang$core$Basics$toString(player)),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Bingo$pageFooter,
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}

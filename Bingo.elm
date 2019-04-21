@@ -16,6 +16,7 @@ type alias Player =
   { name: String
   , gameNumber: Int
   , words: List Word
+  , alertMessage: Maybe String
   }
 
 type alias Word =
@@ -28,7 +29,7 @@ type alias Word =
 
 initialPlayer: Player
 initialPlayer =
-  Player "max" 9 []
+  Player "max" 9 [] Nothing
 
 initialWords: List Word
 initialWords =
@@ -42,8 +43,12 @@ initialWords =
 -- UPDATE
 
 
-type Msg = NewGame | Mark Int | NewRandom Int | NewWords (Result Http.Error (List Word))
-
+type Msg =
+  NewGame
+  | Mark Int
+  | NewRandom Int
+  | NewWords (Result Http.Error (List Word))
+  | CloseAlert
 
 update : Msg -> Player -> ( Player, Cmd Msg )
 update msg player =
@@ -58,9 +63,20 @@ update msg player =
           { player | words = words } ! []
         Err error ->
           let
-            _ = Debug.log "Oops!!!" error
+            errorMessage =
+              case error of
+                Http.NetworkError ->
+                  "Please check server is running???"
+                Http.BadStatus response ->
+                  (toString response.status)
+                Http.BadPayload message _ ->
+                  "Decoding Failed: " ++ message
+                _ ->
+                  "Something went wrong!!!"
           in
-            player ! []
+            { player | alertMessage = (Just errorMessage) } ! []
+    CloseAlert ->
+      { player | alertMessage = Nothing } ! []
     Mark id ->
       let
         markEntry e =
@@ -175,6 +191,7 @@ pageContent player =
   div [ class "content" ]
     [ pageHeader "Bingo"
     , stylePlayerHtml player.name player.gameNumber
+    , viewAlertMessage player.alertMessage
     , pageWordList player.words
     , viewScore (sumMarkedWords player.words)
     , div [ class "button-group" ]
@@ -183,6 +200,17 @@ pageContent player =
     , pageFooter
     ]
 
+
+viewAlertMessage : Maybe String -> Html Msg
+viewAlertMessage alertMessage =
+  case alertMessage of
+    Just message ->
+      div [ class "alert" ]
+          [ span [ class "close", onClick CloseAlert ] [ text "x" ]
+          , text message
+          ]
+    Nothing ->
+      text ""
 
 -- main : Html Msg
 -- main =
