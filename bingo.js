@@ -9536,7 +9536,30 @@ var _user$project$Bingo$stylePlayerHtml = F2(
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$Bingo$wordsUrl = 'http://localhost:3000/random-entries';
+var _user$project$Bingo$encodeScore = function (player) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'name',
+				_1: _elm_lang$core$Json_Encode$string(player.name)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'score',
+					_1: _elm_lang$core$Json_Encode$int(
+						_user$project$Bingo$sumMarkedWords(player.words))
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Bingo$baseUrl = 'http://localhost:3000';
+var _user$project$Bingo$wordsUrl = A2(_elm_lang$core$Basics_ops['++'], _user$project$Bingo$baseUrl, '/random-entries');
+var _user$project$Bingo$scoreUrl = A2(_elm_lang$core$Basics_ops['++'], _user$project$Bingo$baseUrl, '/scores');
 var _user$project$Bingo$Player = F4(
 	function (a, b, c, d) {
 		return {name: a, gameNumber: b, words: c, alertMessage: d};
@@ -9576,6 +9599,28 @@ var _user$project$Bingo$wordDecoder = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
 	_elm_lang$core$Json_Decode$succeed(false));
 var _user$project$Bingo$wordListDecoder = _elm_lang$core$Json_Decode$list(_user$project$Bingo$wordDecoder);
+var _user$project$Bingo$Score = F3(
+	function (a, b, c) {
+		return {id: a, name: b, score: c};
+	});
+var _user$project$Bingo$scoreDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Bingo$Score,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'score', _elm_lang$core$Json_Decode$int));
+var _user$project$Bingo$NewScore = function (a) {
+	return {ctor: 'NewScore', _0: a};
+};
+var _user$project$Bingo$postScore = function (player) {
+	var body = _elm_lang$http$Http$jsonBody(
+		_user$project$Bingo$encodeScore(player));
+	return A2(
+		_elm_lang$http$Http$send,
+		_user$project$Bingo$NewScore,
+		A3(_elm_lang$http$Http$post, _user$project$Bingo$scoreUrl, body, _user$project$Bingo$scoreDecoder));
+};
+var _user$project$Bingo$ShareScore = {ctor: 'ShareScore'};
 var _user$project$Bingo$CloseAlert = {ctor: 'CloseAlert'};
 var _user$project$Bingo$viewAlertMessage = function (alertMessage) {
 	var _p0 = alertMessage;
@@ -9692,7 +9737,7 @@ var _user$project$Bingo$update = F2(
 						player,
 						{alertMessage: _elm_lang$core$Maybe$Nothing}),
 					{ctor: '[]'});
-			default:
+			case 'Mark':
 				var markEntry = function (e) {
 					return _elm_lang$core$Native_Utils.eq(e.id, _p1._0) ? _elm_lang$core$Native_Utils.update(
 						e,
@@ -9706,6 +9751,51 @@ var _user$project$Bingo$update = F2(
 							words: A2(_elm_lang$core$List$map, markEntry, player.words)
 						}),
 					{ctor: '[]'});
+			case 'ShareScore':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					player,
+					{
+						ctor: '::',
+						_0: _user$project$Bingo$postScore(player),
+						_1: {ctor: '[]'}
+					});
+			default:
+				var _p4 = _p1._0;
+				if (_p4.ctor === 'Ok') {
+					var _p5 = _p4._0;
+					var message = A2(
+						_elm_lang$core$Basics_ops['++'],
+						_p5.name,
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							' your Score of ',
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								_elm_lang$core$Basics$toString(_p5.score),
+								' has beed successfully shared!!')));
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							player,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(message)
+							}),
+						{ctor: '[]'});
+				} else {
+					var message = A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Error in posting your score',
+						_elm_lang$core$Basics$toString(_p4._0));
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							player,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(message)
+							}),
+						{ctor: '[]'});
+				}
 		}
 	});
 var _user$project$Bingo$Mark = function (a) {
@@ -9816,7 +9906,22 @@ var _user$project$Bingo$pageContent = function (player) {
 												_0: _elm_lang$html$Html$text('New Game'),
 												_1: {ctor: '[]'}
 											}),
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$Bingo$ShareScore),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Share Score'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
 									}),
 								_1: {
 									ctor: '::',

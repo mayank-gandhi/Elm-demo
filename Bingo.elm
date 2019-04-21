@@ -7,6 +7,7 @@ import Html.Events exposing (onClick)
 import Random
 import Http
 import Json.Decode as Decode
+import Json.Encode as Encode
 
 
 -- MODEL
@@ -24,6 +25,12 @@ type alias Word =
   , phrase: String
   , points: Int
   , marked: Bool
+  }
+
+type alias Score =
+  { id: Int
+  , name: String
+  , score: Int
   }
 
 
@@ -49,6 +56,8 @@ type Msg =
   | NewRandom Int
   | NewWords (Result Http.Error (List Word))
   | CloseAlert
+  | ShareScore
+  | NewScore (Result Http.Error Score)
 
 update : Msg -> Player -> ( Player, Cmd Msg )
 update msg player =
@@ -86,6 +95,26 @@ update msg player =
             e
       in
         { player | words = List.map markEntry player.words } ! []
+    ShareScore ->
+      player ! [ postScore player ]
+    NewScore result ->
+      case result of
+        Ok score ->
+          let
+            message =
+              score.name
+                ++ " your Score of "
+                ++ (toString score.score)
+                ++ " has beed successfully shared!!"
+          in
+            { player | alertMessage = Just message } ! []
+        Err error ->
+          let
+            message =
+              "Error in posting your score"
+                ++ (toString error)
+          in
+            { player | alertMessage = Just message } ! []
 
 
 -- COMMANDS
@@ -96,9 +125,20 @@ generateRandomNumber =
   Random.generate NewRandom (Random.int 1 100)
 
 
+baseUrl : String
+baseUrl =
+  "http://localhost:3000"
+
+
 wordsUrl : String
 wordsUrl =
-    "http://localhost:3000/random-entries"
+  baseUrl ++ "/random-entries"
+
+
+scoreUrl : String
+scoreUrl =
+  baseUrl ++ "/scores"
+
 
 getWords : Cmd Msg
 getWords =
@@ -107,7 +147,19 @@ getWords =
     |> Http.send NewWords
 
 
--- DECODER
+postScore : Player -> Cmd Msg
+postScore player =
+  let
+    body =
+      player
+        |> encodeScore
+        |> Http.jsonBody
+  in
+    scoreDecoder
+      |> Http.post scoreUrl body
+      |> Http.send NewScore
+
+-- DECODER/ENCODERS
 
 
 wordDecoder : Decode.Decoder Word
@@ -123,6 +175,21 @@ wordListDecoder : Decode.Decoder (List Word)
 wordListDecoder =
   Decode.list wordDecoder
 
+
+scoreDecoder : Decode.Decoder Score
+scoreDecoder =
+  Decode.map3 Score
+    (Decode.field "id" Decode.int)
+    (Decode.field "name" Decode.string)
+    (Decode.field "score" Decode.int)
+
+
+encodeScore : Player -> Encode.Value
+encodeScore player =
+  Encode.object
+    [ ("name", Encode.string player.name)
+    , ("score", Encode.int (sumMarkedWords player.words))
+    ]
 
 -- VIEW
 
@@ -195,7 +262,9 @@ pageContent player =
     , pageWordList player.words
     , viewScore (sumMarkedWords player.words)
     , div [ class "button-group" ]
-          [ button [ onClick NewGame ] [text "New Game"] ]
+          [ button [ onClick NewGame ] [text "New Game"]
+          , button [ onClick ShareScore ] [ text "Share Score" ]
+          ]
     , div [ class "debug" ] [text (toString player)]
     , pageFooter
     ]
