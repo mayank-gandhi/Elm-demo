@@ -9548,7 +9548,7 @@ var _user$project$Bingo$initialPlayer = A3(
 	{ctor: '[]'});
 var _user$project$Bingo$Word = F4(
 	function (a, b, c, d) {
-		return {id: a, word: b, points: c, marked: d};
+		return {id: a, phrase: b, points: c, marked: d};
 	});
 var _user$project$Bingo$initialWords = {
 	ctor: '::',
@@ -9567,13 +9567,21 @@ var _user$project$Bingo$initialWords = {
 		}
 	}
 };
+var _user$project$Bingo$wordDecoder = A5(
+	_elm_lang$core$Json_Decode$map4,
+	_user$project$Bingo$Word,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'phrase', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'points', _elm_lang$core$Json_Decode$int),
+	_elm_lang$core$Json_Decode$succeed(false));
+var _user$project$Bingo$wordListDecoder = _elm_lang$core$Json_Decode$list(_user$project$Bingo$wordDecoder);
 var _user$project$Bingo$NewWords = function (a) {
 	return {ctor: 'NewWords', _0: a};
 };
 var _user$project$Bingo$getWords = A2(
 	_elm_lang$http$Http$send,
 	_user$project$Bingo$NewWords,
-	_elm_lang$http$Http$getString(_user$project$Bingo$wordsUrl));
+	A2(_elm_lang$http$Http$get, _user$project$Bingo$wordsUrl, _user$project$Bingo$wordListDecoder));
 var _user$project$Bingo$NewRandom = function (a) {
 	return {ctor: 'NewRandom', _0: a};
 };
@@ -9608,13 +9616,14 @@ var _user$project$Bingo$update = F2(
 			case 'NewWords':
 				var _p1 = _p0._0;
 				if (_p1.ctor === 'Ok') {
-					var _p2 = A2(_elm_lang$core$Debug$log, 'done!!!', _p1._0);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						player,
+						_elm_lang$core$Native_Utils.update(
+							player,
+							{words: _p1._0}),
 						{ctor: '[]'});
 				} else {
-					var _p3 = A2(_elm_lang$core$Debug$log, 'Oops!!!', _p1._0);
+					var _p2 = A2(_elm_lang$core$Debug$log, 'Oops!!!', _p1._0);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						player,
@@ -9668,7 +9677,7 @@ var _user$project$Bingo$getWordItem = function (word) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(word.word),
+					_0: _elm_lang$html$Html$text(word.phrase),
 					_1: {ctor: '[]'}
 				}),
 			_1: {

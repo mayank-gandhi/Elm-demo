@@ -6,6 +6,7 @@ import Html.Attributes exposing (id, class, href, classList)
 import Html.Events exposing (onClick)
 import Random
 import Http
+import Json.Decode as Decode
 
 
 -- MODEL
@@ -19,7 +20,7 @@ type alias Player =
 
 type alias Word =
   { id: Int
-  , word: String
+  , phrase: String
   , points: Int
   , marked: Bool
   }
@@ -41,7 +42,7 @@ initialWords =
 -- UPDATE
 
 
-type Msg = NewGame | Mark Int | NewRandom Int | NewWords (Result Http.Error String)
+type Msg = NewGame | Mark Int | NewRandom Int | NewWords (Result Http.Error (List Word))
 
 
 update : Msg -> Player -> ( Player, Cmd Msg )
@@ -53,11 +54,8 @@ update msg player =
       player ! [getWords, generateRandomNumber]
     NewWords result ->
       case result of
-        Ok jsonString ->
-          let
-            _ = Debug.log "done!!!" jsonString
-          in
-            player ! []
+        Ok words ->
+          { player | words = words } ! []
         Err error ->
           let
             _ = Debug.log "Oops!!!" error
@@ -88,9 +86,27 @@ wordsUrl =
 
 getWords : Cmd Msg
 getWords =
-  wordsUrl
-  |> Http.getString
-  |> Http.send NewWords
+  wordListDecoder
+    |> Http.get wordsUrl
+    |> Http.send NewWords
+
+
+-- DECODER
+
+
+wordDecoder : Decode.Decoder Word
+wordDecoder =
+  Decode.map4 Word
+    (Decode.field "id" Decode.int)
+    (Decode.field "phrase" Decode.string)
+    (Decode.field "points" Decode.int)
+    (Decode.succeed False)
+
+
+wordListDecoder : Decode.Decoder (List Word)
+wordListDecoder =
+  Decode.list wordDecoder
+
 
 -- VIEW
 
@@ -125,7 +141,7 @@ pageFooter =
 getWordItem: Word -> Html Msg
 getWordItem word =
   li [ classList [ ("marked", word.marked) ], onClick (Mark word.id) ]
-    [ span [ class "phrase" ] [ text word.word ]
+    [ span [ class "phrase" ] [ text word.phrase ]
     , span [ class "points" ] [ text (toString word.points) ]
     ]
 
